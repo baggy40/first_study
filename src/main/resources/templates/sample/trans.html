@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    *{margin:0 auto; padding:0; list-style:none;}
+    a{text-decoration:none; color:#000;}
+
+    .container{width:1300px;}
+    h2{text-align:center; margin-top:50px; margin-bottom:50px;}
+    table{width:1300px; border-collapse:collapse;}
+    th{border-top:1px solid #ddd; border-bottom:1px solid #ddd; padding:10px;
+    text-size:14px;}
+    td{text-align:center; border-bottom:1px solid #ddd; padding:5px;
+    font-size:12px;}
+    td:hover{background:#eee;}
+
+    .traffic{height:50px; margin-left:20px; float:left;}
+    .traffic button{width:80px; height:30px; border:none;
+    background:#1d35a6; border-radius:15px;}
+    .traffic button > a{color:#fff}
+    .traffic button:hover{background:#eee;}
+    .traffic button:hover > a{color:#1d35a6;}
+
+    .canvas{width:1000px; height:500px; margin-top:100px;}
+    .canvas1{float:left; margin-left:200px; }
+    .canvas1 canvas{width:300px; height:200px;}
+    .canvas2{float:left; margin-left:20px;}
+    .canvas2 canvas{width:300px; height:300px;}
+</style>
+<body>
+<div class="container">
+<h2>교통량 정체 구간</h2>
+<div class="traffic">
+  <button><a href="/sample/admin">교통량</a></button>
+</div>
+<table class="board_list">
+  <thead class="thead">
+    <tr align="center">
+      <th scope="col">도로명</th>
+      <th scope="col">수집일자</th>
+      <th scope="col">수집시간</th>
+      <th scope="col">교통량</th>
+      <th scope="col">속도</th>
+      <th scope="col">점유율</th>
+      <th scope="col">통행시간</th>
+      <th scope="col">노선번호</th>
+      <th scope="col">기점종점방향구분코드</th>
+      <th scope="col">콘존ID</th>
+      <th scope="col">콘존명</th>
+      <th scope="col">VDS_ID</th>
+      <th scope="col">소통등급</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr align="center" th:each="bord:${list}">
+      <td th:text="${bord.routeName}">routeName</td>
+      <td th:text="${bord.stdDate}">stdDate</td>
+      <td th:text="${bord.stdHour}">stdHour</td>
+      <td th:text="${bord.trafficAmout}">trafficAmout</td>
+      <td th:text="${bord.speed}">speed</td>
+      <td th:text="${bord.shareRatio}">shareRatio</td>
+      <td th:text="${bord.timeAvg}">timeAvg</td>
+      <td th:text="${bord.routeNo}">routeNo</td>
+      <td th:text="${bord.updownTypeCode}">updownTypeCode</td>
+      <td th:text="${bord.conzoneId}">conzoneId</td>
+      <td th:text="${bord.conzoneName}">conzoneName</td>
+      <td th:text="${bord.vdsId}">vdsId</td>
+      <td th:text="${bord.grade}">grade</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="canvas">
+  <div class="canvas1">
+    <canvas id = "scoreChar"></canvas>
+  </div>
+  <div class="canvas2">
+    <canvas id = "scoreCharPie"></canvas>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+<script type = "text/javascript" th:inline="javascript">
+//https://thdeodls85.tistory.com/116
+//https://velog.io/@yejin25/%EB%A6%AC%EC%8A%A4%ED%8A%B8%EC%97%90%EC%84%9C-%EC%84%A0%ED%83%9D%ED%95%9C-%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%A7%8C-%EB%B3%B4%EC%97%AC%EC%A3%BC%EA%B8%B0
+/*<![CDATA[*/
+    $(document).ready(function () {
+        const scoreAvgList = /*[[ ${list.toArray()} ]]*/;
+        let traffic = 0;
+        let speed = 0;
+        let timeAg=0;
+        let scoreAg = scoreAvgList.length;
+        for(let i=0; i<scoreAvgList.length; i++){
+            traffic+= scoreAvgList[i].trafficAmout;
+            speed+= scoreAvgList[i].speed;
+            timeAg+= scoreAvgList[i].timeAvg;
+        }
+
+        traffic = traffic/scoreAg;
+        speed = speed/scoreAg;
+        timeAg = timeAg/scoreAg;
+
+        const arr = [traffic, speed,timeAg];
+
+        console.log(traffic);
+        const result = scoreAvgList.reduce(function add(sum,
+        currValue){
+          return sum + currValue;
+        },0);
+
+
+        const ctx1 = document.getElementById('scoreChar').getContext('2d');
+        const chart1 = new Chart(ctx1, {
+            type: 'bar', //chart 타입
+            data: {
+                labels: ['교통량', '속도', '점유율'],
+                datasets:[{
+                    label:'평균',
+                    fill: false,
+                    data: arr,
+                    backgroundColor: [
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1,
+                    barPercentage: 0.5
+                }]
+            },
+            options:{
+                scales: {
+                    y: {
+                        grid: {
+                            drawOnChartArea: true,  //선 지우기
+                            drawTicks: false,   //축의 숫자 옆 눈금 지우기
+                            drawBorder: true,
+                            borderDash: [3, 3]	//y축 선 실선으로 길이 3,간격 3으로
+                        },
+                        ticks: {
+                            padding: 10,
+                            beginAtZero: true
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false,
+                            drawTicks: false
+                        },
+                        ticks: {
+                            padding: 10
+                        }
+                    }
+                }
+            }
+        });
+
+        const ctx = document.getElementById('scoreCharPie').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'pie', //chart 타입
+            data: {
+                labels: ['교통량', '속도', '점유율'],
+                datasets:[{
+                    label:'평균',
+                    fill: false,
+                    data: arr,
+                    backgroundColor: [
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1,
+                    barPercentage: 0.5
+                }]
+            },
+            options:{
+                scales: {
+                    y: {
+                        grid: {
+                            drawOnChartArea: true,  //선 지우기
+                            drawTicks: false,   //축의 숫자 옆 눈금 지우기
+                            drawBorder: true,
+                            borderDash: [3, 3]	//y축 선 실선으로 길이 3,간격 3으로
+                        },
+                        ticks: {
+                            padding: 10,
+                            beginAtZero: true
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false,
+                            drawTicks: false
+                        },
+                        ticks: {
+                            padding: 10
+                        }
+                    }
+                }
+            }
+        });
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

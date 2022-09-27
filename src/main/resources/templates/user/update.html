@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+   <!-- <div class="card-body" sec:authorize="isAuthenticated()" >
+        <div sec:authentication="principal" var="principal"></div>
+    </div>-->
+    <!--<div sec:authorize="isAuthenticated()">
+        Only Authenticated user can see this Text
+    </div>-->
+  <!-- <span sec:authentication="principal.user.username">Username</span>-->
+
+    <form id="profileUpdate">
+        <div class="login">
+            <div class="login_line">
+                <h4>이름</h4>
+                <input type="text" name="name"  th:value="${principal.name}" required="required">
+            </div>
+            <div class="login_line">
+                <h4>유저네임</h4>
+                <input type="text" name="username" th:value="${principal.username}" readonly>
+                <span sec:authentication="principal.user.username">Username</span>
+            </div>
+            <div class="login_line">
+                <h4>비밀번호</h4>
+                <input type="password" name="password" required="required">
+            </div>
+            <div class="login_line">
+                <h4>웹사이트</h4>
+                <input type="text" name="website" th:value="${principal.website}">
+            </div>
+            <div class="login_line">
+                <h4>소개</h4>
+                <textarea name="bio" rows="3" th:text="${principal.bio}"></textarea>
+            </div>
+            <div class="login_line">
+                <h4>이메일</h4>
+                <input type="text" name="email" th:value="${principal.email}">
+            </div>
+            <div class="login_line">
+                <h4>전화번호</h4>
+                <input type="text" name="phone" th:value="${principal.phone}">
+            </div>
+            <div class="login_line">
+                <h4>성별</h4>
+                <input type="text" name="gender" th:value="${principal.gender}">
+            </div>
+            <div class="form_button">
+                <button type="button"th:myName="${principal.id}"
+                        th:onclick="update(this.getAttribute('myName'))">수정</button>
+               <!-- <button>수정</button>-->
+
+            </div>
+        </div>
+    </form>
+   <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script>
+        function update(userId){
+            let data = $("#profileUpdate").serialize();
+
+            $.ajax({
+                type:"put",
+                url:'/api/user/1',
+                data:data,
+                contentType:"application/x-www-form-urlencoded; charset=utf-8",
+                dataType:"json"
+            }).done(res=>{
+                console.log("성공");
+                location.href='/user/1';
+            }).fail(error=>{
+            console.log(error);
+            });
+        }
+    </script>
+</body>
+</html>

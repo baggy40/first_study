@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" >
+    <title>ajax</title>
+</head>
+<style>
+    *{margin:0 auto; padding:0; list-style:none;}
+    a{text-decoration:none; color:#000;}
+
+    .container{width:1300px;}
+    h2{text-align:center; margin-top:50px; margin-bottom:50px;}
+    table{width:1300px; border-collapse:collapse;}
+    th{border-top:1px solid #ddd; border-bottom:1px solid #ddd; padding:10px;
+    text-size:14px;}
+    td{text-align:center; border-bottom:1px solid #ddd; padding:5px;
+    font-size:12px;}
+    .traffic{height:50px; margin-left:20px; float:left;}
+    .traffic button{width:80px; height:30px; border:none;
+    background:#1d35a6; border-radius:15px;}
+    .traffic button > a{color:#fff}
+    .timeAvg{height:50px; margin-left:20px; float:left;}
+    .timeAvg button{width:80px; height:30px; border:none;
+    background:#ff00ff; border-radius:15px;}
+    .timeAvg button > a{color:#fff}
+    .speed{height:50px; margin-left:20px; float:left;}
+    .speed button{width:80px; height:30px; border:none;
+    background:#33ffff; border-radius:15px;}
+    .speed button > a{color:#fff}
+    .home_button{height:50px; margin-left:20px; float:right; margin-right:30px;}
+    .home_button button{width:80px; height:30px; border:none;
+    background:#eee; border-radius:15px;}
+</style>
+<body>
+<div class="container">
+
+    <h2>전체 교통량</h2>
+    <div class="traffic">
+        <button><a href="/sample/traffic">교통량</a></button>
+    </div>
+    <div class="speed">
+        <button><a href="#">속도</a></button>
+    </div>
+    <div class="timeAvg">
+        <button><a href="#">통행시간</a></button>
+    </div>
+    <div class="home_button">
+        <button><a href="/sample/main">HOME</a></button>
+    </div>
+    <table class="board_list">
+        <thead class="thead">
+        <tr align="center">
+            <th scope="col">도로명</th>
+            <th scope="col">수집일자</th>
+            <th scope="col">수집시간</th>
+            <th scope="col">교통량</th>
+            <th scope="col">속도</th>
+            <th scope="col">점유율</th>
+            <th scope="col">통행시간</th>
+            <th scope="col">노선번호</th>
+            <th scope="col">기점종점방향구분코드</th>
+            <th scope="col">콘존ID</th>
+            <th scope="col">콘존명</th>
+            <th scope="col">VDS_ID</th>
+            <th scope="col">소통등급</th>
+        </tr>
+        </thead>
+        <!--       <tbody>-->
+        <!--        <tr th:if="${#lists.size(list)} > 0" th:each="list : ${list}">-->
+        <!--            <td th:text="${list.id}"></td>-->
+        <!--            <td class="title"><a href="/board/updateMember/" th:attrappend="href=${list.id}" th:text="${list.name}"></a></td>-->
+        <!--            <td th:text="${list.job}"></td>-->
+        <!--            <td><a href="/board/updateMember/" th:attrappend="href=${list.id}">수정</a> / <a href="/board/deleteMember/" th:attrappend="href=${list.id}">삭제</a> </td>-->
+        <!--        </tr>-->
+        <!--        <tr th:unless="${#lists.size(list)} > 0">-->
+        <!--            <td colspan="4">조회된 결과가 없습니다.</td>-->
+        <!--        </tr>-->
+        <!--        </tbody>-->
+    </table>
+</div>
+<!--j쿼리 사용-->
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script>
+
+			// ajax로 json 데이터 받아오기
+			function func1(){
+				$.ajax({
+					url: "http://data.ex.co.kr/openapi/odtraffic/trafficAmountByCongest?key=5267757626&type=json",
+					type:"GET",	//데이터 전송하는 방법
+					dataType : "JSON",	//받아올 데이터 형식
+
+					success:function(res){	//성공했을 때
+					var td = $("<tbody/>");
+					var rows = res["list"];
+                    var dataArray=[];
+
+					for(var i=0;i< rows.length; i++){
+
+						var $id = rows[i].routeName
+                        var $stdDate = rows[i].stdDate
+                        var $hour = rows[i].stdHour
+                        var $amout = rows[i].trafficAmout
+                        var $speed = rows[i].speed
+                        var $ratio = rows[i].shareRatio
+                        var $avg = rows[i].timeAvg
+                        var $routeNo = rows[i].routeNo
+                        var $updownTypeCode = rows[i].updownTypeCode
+                        var $conzoneId = rows[i].conzoneId
+                        var $conzoneName = rows[i].conzoneName
+                        var $vdsId = rows[i].vdsId
+                        var $grade = rows[i].grade
+
+                        dataArray.push(rows[i]);
+
+
+                        var row = $("<tr/>").append(
+                        '<td><a href='+$id+'>' + $id + '</a></td>'+
+                        '<td>'+$stdDate+'</td>'+
+                        '<td>'+$hour+'</td>'+
+                        '<td>'+$amout+'</td>'+
+                        '<td>'+$speed+'</td>'+
+                        '<td>'+$ratio+'</td>'+
+                        '<td>'+$avg+'</td>'+
+                        '<td>'+$routeNo+'</td>'+
+                        '<td>'+$updownTypeCode+'</td>'+
+                        '<td>'+$conzoneId+'</td>'+
+                        '<td>'+$conzoneName+'</td>'+
+                        '<td>'+$vdsId+'</td>'+
+                        '<td>'+$grade+'</td>'
+                    )
+                     td.append(row);
+
+					}
+                          $(".thead").after(td);
+                          var paramList = {
+                            "paramList" : JSON.stringify(dataArray)
+                          }
+                         //console.log(dataArray);
+                          $.ajax({
+                            type:"post",
+                            url: "/sample/transInfo",
+                            data :paramList,
+                            success: function(res){
+                                console.log("good");
+                            },
+                            error: function(e){
+                                console.log(e);
+                            }
+                          })
+					},
+					error:function(e){	//실패했을 때
+					    console.log(e);
+						//ret.innerHTML = "Error!";
+					}
+				});
+			}
+
+        func1();
+		</script>
+</body>
+</html>

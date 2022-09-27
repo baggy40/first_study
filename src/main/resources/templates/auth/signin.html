@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>LOgin</title>
+</head>
+<style>
+  *{margin:0 auto; padding:0; list-style:none;}
+  a{text-decoration:underline; color:#000;}
+  body{width:100%; height:100%; background:rgba(0,0,0,0.1);}
+
+  .login{width:500px; height:400px; background:#fff; border-radius:15px; text-align:center;
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);}
+  h2{font-size:30px; color:#1d35a6; font-weight:bold; margin:40px 0 30px 0;}
+  .login_line{width:80%; height:80px;}
+  .login_line h4{font-size:15px; margin-bottom:10px;}
+  .login_line input{width:80%; height:30px; border-radius:15px; border:1px solid #000; text-align:center;
+  font-size:15px; }
+  .submit{width:80%; margin-top:20px;}
+  .submit input{width:200px; height:30px; background:#1d35a6; border:none; border-radius:15px;
+  color:#fff; font-size:16px; letter-spacing:3px;}
+  .register{font-size:10px; margin-top:10px;}
+  .register > a:hover{font-weight:bold;}
+</style>
+<body>
+  <form th:action="@{/auth/signin}" method="post">
+    <div class="login">
+      <h2>로그인</h2>
+      <div class="login_line">
+        <h4>아이디</h4>
+        <input type="text" name="username" id="username">
+      </div>
+      <div class="login_line">
+        <h4>비밀번호</h4>
+        <input type="password" name="password" id="password">
+      </div>
+      <div class="submit">
+        <input type="submit" value="로그인">
+      </div>
+      <div class="register">
+        <a th:href="@{/auth/signup}">회원가입</a>
+      </div>
+    </div>
+  </form>
+</body>
+</html>
